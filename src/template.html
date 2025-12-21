@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>To Do List</title>
+</head>
+
+<body>
+    <aside>
+        <h1>To do List</h1>
+        <ul>
+            <li>General</li>
+        </ul>
+        <button class="openTabModal" data-open-modal=".tabForm">Add tab</button>
+    </aside>
+    <header>
+        <h1>Projects</h1>
+    </header>
+    <main>
+        <button class="openTaskModal" data-open-modal=".taskForm">Add task</button>
+    </main>
+
+    <dialog class="tabForm">
+        <button class="closeModal">X</button>
+        <label for="tab">Tab name:</label>
+        <input type="text" id="tab" name="tab_name" placeholder="tab name..." required>
+        <button type="button" class="addTab">Submit</button>
+    </dialog>
+
+    <dialog class="taskForm">
+        <button class="closeModal">X</button>
+        <h1>Enter Task details:</h1>
+        <form>
+            <div>
+                <label for="task">Task:</label>
+                <input type="text" id="task" name="task_name" placeholder="task..." required>
+                <label for="date">Due Date:</label>
+                <input type="date" id="dueDate" name="task_date">
+            </div>
+
+            <div>
+                <label for="desc">Description:</label>
+                <input type="text" id="desc" name="task_desc" placeholder="task description...">
+            </div>
+
+            <fieldset>
+                <legend>Select priority:</legend>
+                <div>
+                    <input type="radio" id="low" name="task_priority" checked>
+                    <label for="low">low</label>
+                </div>
+
+                <div>
+                    <input type="radio" id="medium" name="task_priority">
+                    <label for="medium">medium</label>
+                </div>
+
+                <div>
+                    <input type="radio" id="high" name="task_priority">
+                    <label for="high">high</label>
+                </div>
+            </fieldset>
+
+            <button type="button" class="addTask">Submit</button>
+        </form>
+    </dialog>
+</body>
+
+</html>
