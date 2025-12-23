@@ -61,12 +61,15 @@ addTab.addEventListener("click", (e) => {
 
   const newTab = tabs[tabs.length - 1];
   tabLoader(newTab);
+
   document.querySelector("dialog[open]").close();
 });
 
 let tabLoader = (tab) => {
-  const tabEntry = elementBuilder("div", "tab", tab.tabName);
+  const tabEntry = elementBuilder("div", "tabEntry");
   tabEntry.dataset.tabID = tab.tabID;
+
+  const tabBtn = elementBuilder("button", "tab", tab.tabName);
 
   const tabRemoveBtn = elementBuilder("button", "tabRemoveBtn", "Remove");
   tabRemoveBtn.addEventListener("click", () => {
@@ -76,7 +79,7 @@ let tabLoader = (tab) => {
     );
     if (index !== -1) tabs.splice(index, 1);
   });
-  tabEntry.append(tabRemoveBtn);
+  tabEntry.append(tabBtn, tabRemoveBtn);
   tabList.append(tabEntry);
 };
 
@@ -87,7 +90,7 @@ let tabListLoader = () => {
 };
 
 // Task creation
-const taskList = document.querySelector("main");
+const taskContainer = document.querySelector(".taskContainer");
 const tasks = [];
 
 class Task {
@@ -129,6 +132,7 @@ addTask.addEventListener("click", (e) => {
 
   const newTask = tasks[tasks.length - 1];
   taskLoader(newTask);
+
   document.querySelector("dialog[open]").close();
 });
 
@@ -160,12 +164,12 @@ let taskLoader = (task) => {
   cardFooter.append(taskDueDate, taskPriority, taskRemoveBtn);
   card.append(taskCheckbox, taskName, taskDesc, cardFooter);
 
-  taskList.insertBefore(card, taskList.firstChild);
+  taskContainer.append(card);
 };
 
 let taskListLoader = () => {
-  tasks.forEach((taskList) => {
-    taskLoader(taskList);
+  tasks.forEach((taskContainer) => {
+    taskLoader(taskContainer);
   });
 };
 
