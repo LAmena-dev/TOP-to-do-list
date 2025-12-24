@@ -1,77 +1,75 @@
-/* stylesheet for to-do-list
+/* stylesheet for to-do-list */
 
-body {
-  font-family: "Segoe UI", Tahoma, "Geneva", Verdana, sans-serif;
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  grid-template-rows: 100px 1fr;
-  margin: 0;
-  height: 100vh;
-}
-
-button {
-  font-size: 1rem;
-  border: none;
-  border-radius: 5px;
-  box-shadow: 0 5px 5px black;
-  background-color: rgb(210, 130, 130);
-  width: 100%;
-  padding: 10px;
-}
-
-button:hover {
-  background-color: rgb(170, 90, 110);
-}
-
-aside {
-  grid-row: 1/3;
+.tabEntry {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  border-right: 1px black solid;
-  background-color: rgb(100, 145, 110);
-  padding: 30px 20px;
-
-  h1 {
-    font-size: 2rem;
-    width: 100%;
-    border-bottom: 2px solid black;
-    margin: 0;
-    padding: 15px 0;
-  }
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
 }
 
-header {
-  grid-column: 2/3;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgb(150, 230, 145);
-  margin: 0;
+.tabEntry.active {
+  background-color: #2b2b2b; /* darkened */
 }
 
-main {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-}
-
-ul {
-  list-style: none;
-  list-style-position: inside;
-  width: 100%;
-  margin: 20px;
-  padding: 0;
-}
-
-li {
-  font-size: 1.5rem;
-  margin: 0;
-  padding: 10px;
-}
-
-li:hover {
-  font-weight: bolder;
-  background-color: rgb(65, 115, 65);
+/* .tabEntry.active .tab {
+  background-color: white;
 } */
+
+/* .tabRemoveBtn {
+  display: inline-block;
+  margin-left: auto;
+  transition: opacity 0.2s;
+} */
+
+.emptyState {
+  text-align: center;
+  opacity: 0.6;
+  margin-top: 2rem;
+  font-style: italic;
+}
+
+.overdue {
+  border: 4px solid red;
+}
+.dueSoon {
+  border: 4px solid orange;
+}
+
+.card.completed {
+  opacity: 0.6;
+}
+
+.card.completed .taskName {
+  text-decoration: line-through;
+}
+
+/* styles.css */
+
+.priority.low {
+  background-color: #4caf50; /* green */
+  color: white;
+}
+
+.priority.medium {
+  background-color: #ff9800; /* orange */
+  color: white;
+}
+
+.priority.high {
+  background-color: #f44336; /* red */
+  color: white;
+}
+
+.cardFooter.low {
+  border-top: 3px solid #4caf50;
+}
+
+.cardFooter.medium {
+  border-top: 3px solid #ff9800;
+}
+
+.cardFooter.high {
+  border-top: 3px solid #f44336;
+}

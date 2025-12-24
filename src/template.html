@@ -10,16 +10,30 @@
 <body>
     <aside>
         <h1>To do List</h1>
-        <div class="tabList">
-            <button>General</button>
-            <button class="">Placeholder</button>
+        <div class="tabsContainer">
         </div>
         <button class="openTabModal" data-open-modal=".tabForm">Add tab</button>
     </aside>
     <header>
+        <div class="searchFilter">
+            <input type="text" id="taskSearch" placeholder="Search tasks..." />
+
+            <select id="priorityFilter">
+                <option value="all">All Priorities</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+
+            <select id="statusFilter">
+                <option value="all">All Statuses</option>
+                <option value="completed">Completed</option>
+                <option value="pending">Pending</option>
+            </select>
+        </div>
         <h1>Projects</h1>
     </header>
-    <main class="taskContainer">
+    <main class="tasksContainer">
 
     </main>
     <section>
