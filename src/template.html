@@ -42,9 +42,11 @@
 
     <dialog class="tabForm">
         <button class="closeModal">X</button>
-        <label for="tab">Tab name:</label>
-        <input type="text" id="tab" name="tab_name" placeholder="tab name..." required>
-        <button type="button" class="addTab">Submit</button>
+        <form>
+            <label for="tab">Tab name:</label>
+            <input type="text" id="tab" name="tab_name" placeholder="tab name..." required>
+            <button type="submit" class="addTab">Submit</button>
+        </form>
     </dialog>
 
     <dialog class="taskForm">
@@ -81,7 +83,7 @@
                 </div>
             </fieldset>
 
-            <button type="button" class="addTask">Submit</button>
+            <button type="submit" class="addTask">Submit</button>
         </form>
     </dialog>
 </body>

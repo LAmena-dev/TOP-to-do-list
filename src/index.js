@@ -26,14 +26,22 @@ openButtons.forEach((button) => {
   });
 });
 
-closeButtons.forEach((button) => {
-  button.addEventListener("click", (e) => {
-    const form = e.target.closest("form");
-    if (form) form.reset();
+modals.forEach((modal) => {
+  modal.addEventListener("close", () => {
+    const submitBtn = modal.querySelector(".addTask");
+    if (submitBtn) submitBtn.textContent = "Add";
 
-    modals.forEach((modal) => {
-      if (modal.open) modal.close();
-    });
+    isEditing = false;
+    taskBeingEdited = null;
+
+    const form = modal.querySelector("form");
+    if (form) form.reset();
+  });
+});
+
+closeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("dialog[open]").forEach((modal) => modal.close());
   });
 });
 
@@ -52,6 +60,8 @@ const tabsContainer = document.querySelector(".tabsContainer");
 const tasksContainer = document.querySelector(".tasksContainer");
 const tabs = [];
 let activeTab = null;
+let isEditing = false;
+let taskBeingEdited = null;
 
 // Tab Creation
 class Tab {
@@ -71,7 +81,7 @@ class Tab {
   }
 
   static fromStorage(data) {
-    const tab = new Tab(data.tabName);
+    const tab = new Tab(data.tabName, data.isGeneral);
     tab.tabID = data.tabID;
     tab.tasks = data.tasks.map(Task.fromStorage);
     return tab;
@@ -125,6 +135,7 @@ class Tab {
     this.tasks.forEach((task) => {
       const taskEl = task.render((taskID) => {
         this.removeTask(taskID);
+        saveToLocalStorage();
         this.renderTasks();
       }, editTask);
       tasksContainer.append(taskEl);
@@ -150,10 +161,10 @@ function addTabToList(name) {
 }
 
 // Tab form add button
-const addTabBtn = document.querySelector(".addTab");
-addTabBtn.addEventListener("click", (e) => {
+const tabForm = document.querySelector(".tabForm form");
+tabForm.addEventListener("submit", (e) => {
   e.preventDefault();
-  const tabInput = document.querySelector("#tab");
+  const tabInput = tabForm.querySelector("#tab");
   const tabName = tabInput.value.trim();
 
   if (!tabName) {
@@ -166,7 +177,8 @@ addTabBtn.addEventListener("click", (e) => {
 
   addTabToList(tabName);
 
-  document.querySelector("dialog[open]").close();
+  tabForm.reset();
+  tabForm.closest("dialog").close();
 });
 
 // Task creation
@@ -248,6 +260,7 @@ class Task {
       const nextIndex = (currentIndex + 1) % levels.length;
       this.priority = levels[nextIndex];
       priority.textContent = this.priority;
+      saveToLocalStorage();
       updatePriorityVisuals();
     });
 
@@ -265,35 +278,48 @@ class Task {
 }
 
 // Task form add button
-const addTaskBtn = document.querySelector(".addTask");
-addTaskBtn.addEventListener("click", (e) => {
+const taskForm = document.querySelector(".taskForm form");
+
+taskForm.addEventListener("submit", (e) => {
   e.preventDefault();
 
   if (!activeTab) return;
 
-  const taskInput = document.querySelector("#task");
-  const taskName = taskInput.value.trim();
+  const taskNameInput = taskForm.querySelector("#task");
+  const taskName = taskNameInput.value.trim();
 
   if (!taskName) {
-    taskInput.focus();
-    taskInput.setCustomValidity("Please enter a task name");
-    taskInput.reportValidity();
+    taskNameInput.focus();
+    taskNameInput.setCustomValidity("Please enter a task name");
+    taskNameInput.reportValidity();
     return;
   }
-  taskInput.setCustomValidity("");
+  taskNameInput.setCustomValidity("");
 
-  const taskDueDate = document.querySelector("#dueDate").value;
-  const taskDesc = document.querySelector("#desc").value;
-  const taskPriority = document.querySelector(
+  const taskDueDate = taskForm.querySelector("#dueDate").value;
+  const taskDesc = taskForm.querySelector("#desc").value;
+  const taskPriority = taskForm.querySelector(
     'input[name="task_priority"]:checked'
   ).id;
 
-  const task = new Task(taskName, taskDueDate, taskDesc, taskPriority);
-  activeTab.addTask(task);
+  if (isEditing && taskBeingEdited) {
+    taskBeingEdited.taskName = taskName;
+    taskBeingEdited.dueDate = taskDueDate;
+    taskBeingEdited.desc = taskDesc;
+    taskBeingEdited.priority = taskPriority;
+  } else {
+    const task = new Task(taskName, taskDueDate, taskDesc, taskPriority);
+    activeTab.addTask(task);
+  }
+
   renderActiveTab();
   saveToLocalStorage();
 
-  document.querySelector("dialog[open]").close();
+  taskForm.reset();
+  taskForm.closest("dialog").close();
+
+  isEditing = false;
+  taskBeingEdited = null;
 });
 
 // Global coordinator functions
@@ -309,7 +335,13 @@ function filterTasks() {
   const priority = priorityFilter.value;
   const status = statusFilter.value;
 
-  tasksContainer.innerHTML = "";
+  const noFilterApplied =
+    searchTerm === "" && priority === "all" && status === "all";
+
+  if (noFilterApplied) {
+    activeTab.renderTasks();
+    return;
+  }
 
   const filteredTasks = activeTab.tasks.filter((task) => {
     const matchesSearch = task.taskName.toLowerCase().includes(searchTerm);
@@ -321,6 +353,8 @@ function filterTasks() {
 
     return matchesSearch && matchesPriority && matchesStatus;
   });
+
+  tasksContainer.innerHTML = "";
 
   if (filteredTasks.length === 0) {
     const emptyState = elementBuilder(
@@ -335,33 +369,12 @@ function filterTasks() {
   filteredTasks.forEach((task) => {
     const taskEl = task.render((taskID) => {
       activeTab.removeTask(taskID);
+      saveToLocalStorage();
       filterTasks();
     }, editTask);
     tasksContainer.append(taskEl);
   });
 }
-
-// Keyboard shortcuts
-document.addEventListener("keydown", (e) => {
-  const activeModal = document.querySelector("dialog[open]");
-
-  if (activeModal) {
-    if (e.key === "Escape") activeModal.close();
-    if (e.key === "Enter") {
-      const submitBtn = activeModal.querySelector("button[type='button']");
-      if (submitBtn) submitBtn.click();
-    }
-    return;
-  }
-
-  // Shortcuts when no modal is open
-  if (e.key === "n" || e.key === "N") {
-    document.querySelector(".openTaskModal").click();
-  }
-  if (e.key === "t" || e.key === "T") {
-    document.querySelector(".openTabModal").click();
-  }
-});
 
 // Listen for changes
 taskSearch.addEventListener("input", filterTasks);
@@ -395,53 +408,23 @@ function removeTab(tabID) {
 
 // Edit task function
 function editTask(task) {
-  const taskForm = document.querySelector(".taskForm");
-  taskForm.showModal();
+  isEditing = true;
+  taskBeingEdited = task;
 
-  const taskNameInput = taskForm.querySelector("#task");
-  const dueDateInput = taskForm.querySelector("#dueDate");
-  const descInput = taskForm.querySelector("#desc");
-  const priorityInputs = taskForm.querySelectorAll(
-    'input[name="task_priority"]'
-  );
+  const taskFormDialog = document.querySelector(".taskForm");
+  const taskForm = taskFormDialog.querySelector("form");
 
-  taskNameInput.value = task.taskName;
-  dueDateInput.value = task.dueDate;
-  descInput.value = task.desc;
-  priorityInputs.forEach(
-    (input) => (input.checked = input.id === task.priority)
-  );
+  taskForm.querySelector("#task").value = task.taskName;
+  taskForm.querySelector("#dueDate").value = task.dueDate;
+  taskForm.querySelector("#desc").value = task.desc;
 
-  const submitBtn = taskForm.querySelector(".addTask");
-  const origSubmitBtnText = submitBtn.textContent;
-  submitBtn.textContent = "Edit";
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  taskForm
+    .querySelectorAll('input[name="task_priority"]')
+    .forEach((input) => (input.checked = input.id === task.priority));
 
-    task.taskName = taskNameInput.value.trim();
-    if (!taskNameInput.value.trim()) {
-      taskNameInput.focus();
-      taskNameInput.setCustomValidity("Please enter a task name");
-      taskNameInput.reportValidity();
-      return;
-    }
-    taskNameInput.setCustomValidity("");
+  taskFormDialog.querySelector(".addTask").textContent = "Edit";
 
-    task.dueDate = dueDateInput.value;
-    task.desc = descInput.value;
-    task.priority = taskForm.querySelector(
-      'input[name="task_priority"]:checked'
-    ).id;
-
-    renderActiveTab();
-    saveToLocalStorage();
-    taskForm.close();
-    taskForm.querySelector("form").reset();
-
-    submitBtn.textContent = origSubmitBtnText;
-    submitBtn.removeEventListener("click", handleSubmit);
-  };
-  submitBtn.addEventListener("click", handleSubmit);
+  taskFormDialog.showModal();
 }
 
 // Local Storage functions
@@ -463,7 +446,7 @@ function saveToLocalStorage() {
 }
 
 function loadFromLocalStorage() {
-  const data = JSON.parse(localStorage.getItem("todoData"));
+  const data = JSON.parse(localStorage.getItem("todoData") || "[]");
   if (!data) return;
 
   tabs.length = 0;
@@ -475,7 +458,9 @@ function loadFromLocalStorage() {
   activeTab = tabs.find((t) => t.isGeneral) || tabs[0];
 }
 
-loadFromLocalStorage();
-if (tabs.length === 0) initGeneralTab();
-renderTabs();
-renderActiveTab();
+document.addEventListener("DOMContentLoaded", () => {
+  loadFromLocalStorage();
+  if (tabs.length === 0) initGeneralTab();
+  renderTabs();
+  renderActiveTab();
+});
