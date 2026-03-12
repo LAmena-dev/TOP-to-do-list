@@ -1,5 +1,6 @@
 import "./styles.css";
 import { format, parseISO, isBefore, startOfToday } from "date-fns";
+import { elementBuilder } from "./helpers/elementBuilder.js";
 
 // Sets the minimum dueDate for date selection (automatically set to current date)
 const dueDate = document.querySelector("#dueDate");
@@ -44,16 +45,6 @@ closeButtons.forEach((button) => {
     document.querySelectorAll("dialog[open]").forEach((modal) => modal.close());
   });
 });
-
-// Helper function for building card elements
-function elementBuilder(tag, cls, text) {
-  const el = document.createElement(tag);
-  if (cls) el.classList.add(cls);
-  if (text != null) {
-    el.textContent = text;
-  }
-  return el;
-}
 
 // Init for tab management
 const tabsContainer = document.querySelector(".tabsContainer");
